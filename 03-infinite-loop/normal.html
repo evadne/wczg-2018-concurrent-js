@@ -1,0 +1,23 @@
+<html>
+  <body>
+    <form>
+      <input type="text"></form>
+    </form>
+    <script>
+      var fibonacci = function (iterations) {
+        var values = [1, 1];
+        for (var i = 0; i < iterations; i++) {
+          values.push(values[values.length - 2] + values[values.length - 1]);
+        }
+        return values;
+      }
+      var work = function (then) {
+        fibonacci(1048576);
+        then(then);
+      }
+      setTimeout(function () {
+        work(work);
+      }, 0);
+    </script>
+  </body>
+</html>

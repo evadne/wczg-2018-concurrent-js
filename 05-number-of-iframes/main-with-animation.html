@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <style type="text/css">
+      iframe {
+        width: 4em;
+        height: 4em;
+        border: 0;
+        margin: 0.5em;
+        contain: strict;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+    </div>
+    <script>
+      var numberOfFrames = 0;
+      var maxNumberOfFrames = 1024;
+      var frameObjects = [];
+      var container = document.querySelector('#container');
+      var append = function () {
+        numberOfFrames = numberOfFrames + 1;
+        if (numberOfFrames > maxNumberOfFrames) {
+          return;
+        }
+        var frame = document.createElement('iframe');
+        frame.src = "./frame-with-animation.html";
+        container.append(frame);
+        frameObjects.push(frame);
+      };
+      append();
+      window.addEventListener('message', function (event) {
+        setTimeout(append, 1);
+      });
+    </script>
+  </body>
+</html>

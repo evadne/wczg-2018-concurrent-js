@@ -1,0 +1,22 @@
+<html>
+  <body>
+    <script>
+      var fibonacci = function (iterations) {
+        var values = [1, 1];
+        for (var i = 0; i < iterations; i++) {
+          values.push(values[values.length - 2] + values[values.length - 1]);
+        }
+        return values;
+      }
+      var work = function () {
+        var from = performance.now();
+        for (var i = 0; i < 100; i++) {
+          fibonacci(1048576);
+        }
+        var to = performance.now();
+        console.log(to - from);
+      }
+      work();
+    </script>
+  </body>
+</html>

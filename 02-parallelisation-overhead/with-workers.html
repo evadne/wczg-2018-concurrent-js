@@ -1,0 +1,59 @@
+<html>
+  <body>
+    <script>
+      var work = function () {
+        return new Promise(function (resolve, reject) {
+          var workersRequiredCount = 100;
+          var workersRespondedCount = 0;
+          var spawn = function () {
+            var workerFunction = function (global) {
+              var fibonacci = function (iterations) {
+                var values = [1, 1];
+                for (var i = 0; i < iterations; i++) {
+                  values.push(values[values.length - 2] + values[values.length - 1]);
+                }
+                return values;
+              }
+              global.onmessage = function(event) {
+                if ('ping' == event.data.type) {
+                  var result = fibonacci(1048576);
+                  global.setTimeout(function() {
+                    global.postMessage({type: 'pong', value: result});
+                    global.close();
+                  }, 0);
+                }
+              }
+            }
+            var workerBody = `((${workerFunction.toString()})(self));`
+            var workerBlob = new Blob([workerBody], {type:'text/javascript'});
+            var workerURL = URL.createObjectURL(workerBlob);
+            var worker = new Worker(workerURL);
+            worker.addEventListener('message', function (event) {
+              if ('pong' == event.data.type) {
+                workersRespondedCount = workersRespondedCount + 1;
+                checkCompletion();
+              }
+            });
+            URL.revokeObjectURL(workerURL);
+            return worker;
+          };
+          var checkCompletion = function () {
+            if (workersRespondedCount == workersRequiredCount) {
+              resolve();
+            }
+          }
+          
+          for (var i = 0; i < workersRequiredCount; i++) {
+            spawn().postMessage({type: 'ping'});
+          }
+        });
+      }
+      
+      var from = performance.now();
+      work().then(function(){
+        var to = performance.now();
+        console.log(to - from);
+      });
+    </script>
+  </body>
+</html>

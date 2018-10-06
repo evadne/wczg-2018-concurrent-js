@@ -1,0 +1,62 @@
+<html>
+  <body>
+    <script>
+      var sleepSort = function (numberOfValues) {
+        return new Promise(function (resolve, reject) {
+          var problem = [];
+          var responses = [];
+          for (var i = 0; i < numberOfValues; i++) {
+            problem.push(Math.floor(10 * Math.random()));
+          }
+          var spawn = function () {
+            var workerFunction = function (global) {
+              global.onmessage = function(event) {
+                if ('ping' == event.data.type) {
+                  global.setTimeout(function() {
+                    global.postMessage({type: 'pong', payload: event.data.payload});
+                    global.close();
+                  }, 100 * event.data.payload);
+                }
+              }
+            }
+            var workerBody = `((${workerFunction.toString()})(self));`
+            var workerBlob = new Blob([workerBody], {type:'text/javascript'});
+            var workerURL = URL.createObjectURL(workerBlob);
+            var worker = new Worker(workerURL);
+            worker.addEventListener('message', function (event) {
+              if ('pong' == event.data.type) {
+                responses.push(event.data.payload);
+                checkCompletion();
+              }
+            });
+            URL.revokeObjectURL(workerURL);
+            return worker;
+          };
+          var checkCompletion = function () {
+            if (responses.length == problem.length) {
+              resolve(responses);
+            }
+          }
+
+          // spawn and initialise in one go
+          //
+          problem.forEach(function (value) {
+            spawn().postMessage({type: 'ping', payload: value});
+          });
+
+          // spawn all then initialise
+          //
+          // problem.map(function (value) {
+          //   return [value, spawn()];
+          // }).forEach(function ([value, worker]) {
+          //   worker.postMessage({type: 'ping', payload: value});
+          // });
+        });
+      }
+      //
+      // sleepSort(10).then(function(x) { console.log(x) })
+      // [Log] [0, 1, 1, 4, 4, 5, 6, 6, 8, 9] (10)
+      //
+    </script>
+  </body>
+</html>

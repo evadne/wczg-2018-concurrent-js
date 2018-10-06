@@ -1,0 +1,41 @@
+<html>
+  <head>
+    <script type="text/javascript" src="stackblur.js"></script>
+    <script type="text/javascript" src="emoji.js"></script>
+  </head>
+  <body>
+    <canvas>
+    </canvas>
+    <script>
+      var imageElement = document.querySelector('img');
+      
+      var canvasElement = document.querySelector('canvas');
+      canvasElement.width = 1024;
+      canvasElement.height = 1024;
+      canvasElement.style.border = '1px solid red';
+      
+      var context = canvasElement.getContext('2d', {alpha: false});
+      context.font = '512px sans-serif';
+      
+      var draw = function (then) {
+        var text = Emoji[Math.floor(Math.random() * Emoji.length)];
+        var metrics = context.measureText(text);
+        var textOriginX = 512 - 0.5 * metrics.width;
+        var textOriginY = 512;
+        if (metrics.actualBoundingBoxAscent != undefined) {
+          if (metrics.actualBoundingBoxDescent != undefined) {
+            textOriginY = 512 + 0.5 * (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent);
+          }
+        }
+        context.clearRect(0, 0, 1024, 1024);
+        context.fillText(text, textOriginX, textOriginY);
+        processCanvasRGB(canvasElement, 0, 0, 1024, 1024);
+        requestAnimationFrame(function(){ then(then) });
+      }
+      
+      requestAnimationFrame(function () {
+        draw(draw);
+      });
+    </script>
+  </body>
+</html>

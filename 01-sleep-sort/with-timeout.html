@@ -1,0 +1,26 @@
+<html>
+  <body>
+    <script>
+      var sleepSort = function (numberOfValues) {
+        return new Promise(function (resolve, reject) {
+          var problem = [];
+          var responses = [];
+          for (var i = 0; i < numberOfValues; i++) {
+            problem.push(Math.floor(10 * Math.random()));
+          }
+          var checkCompletion = function () {
+            if (responses.length == problem.length) {
+              resolve(responses);
+            }
+          };
+          problem.forEach(function (value) {
+            setTimeout(function () {
+              responses.push(value);
+              checkCompletion();
+            }, 10 * value);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

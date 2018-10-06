@@ -1,0 +1,36 @@
+<html>
+  <body>
+    <form>
+      <input type="text"></form>
+    </form>
+    <script>
+      var spawn = function () {
+        var workerFunction = function (global) {
+          var fibonacci = function (iterations) {
+            var values = [1, 1];
+            for (var i = 0; i < iterations; i++) {
+              values.push(values[values.length - 2] + values[values.length - 1]);
+            }
+            return values;
+          }
+          var work = function (then) {
+            var result = fibonacci(1048576);
+            global.postMessage({type: 'pong', value: result});
+            then(then);
+          }
+          work(work);
+        }
+        var workerBody = `((${workerFunction.toString()})(self));`
+        var workerBlob = new Blob([workerBody], {type:'text/javascript'});
+        var workerURL = URL.createObjectURL(workerBlob);
+        var worker = new Worker(workerURL);
+        worker.addEventListener('message', function (event) {
+          console.log('got message');
+        });
+        URL.revokeObjectURL(workerURL);
+        return worker;
+      };
+      spawn();
+    </script>
+  </body>
+</html>
